@@ -136,14 +136,19 @@ class UserModel(db.Model):
             raise error
 
     @staticmethod
-    def get_users_by_query(query) -> List[UserModel]:
+    def get_users_by_query(page: int, query: str) -> Pagination:
         """
         get users by name (as name is not unique, multiple records can be returned)
+        :param page:
         :param query:
         :return: user info list
         """
         try:
-            return db.session.query(UserModel).join(AddressModel).filter(or_(UserModel.name.ilike(query), UserModel.email.ilike(query))).all()
+            return db.session.query(UserModel).\
+                join(AddressModel).filter(or_(UserModel.name.ilike('%' + query + '%'),
+                                              UserModel.email.ilike('%' + query + '%'))).paginate(
+                page=page,
+                error_out=False)
         except SQLAlchemyError as error:
             raise error
 
@@ -214,4 +219,21 @@ class UserModel(db.Model):
                 filter(AddressModel.id == UserModel.address_id).filter(
                 AddressModel.type == "user").paginate(page=page, error_out=False)
         except SQLAlchemyError as error:
+            raise error
+
+    @staticmethod
+    def change_password(user_id, new_pwd) -> bool:
+        """
+        change password by userid
+        :param user_id:
+        :param new_pwd:
+        :return: bool
+        """
+        try:
+            db.session.query(UserModel).filter(UserModel.id == user_id).\
+                         update({UserModel.hashed_password: new_pwd})
+            db.session.commit()
+            return True
+        except SQLAlchemyError as error:
+            db.session.rollback()
             raise error

@@ -110,14 +110,17 @@ class UserService(Service):
             self.logger.error("Get all users fail. error %s", traceback.format_exc())
             raise SQLCustomError(description="GET user SQL ERROR")
 
-    def get_users_by_query(self, query: str) -> List[Dict[str, Any]]:
+    def get_users_by_query(self, page: int, query: str) -> (List[Dict[str, Any]], int):
         """
         get users by query (name, email)
+        :param query
+        :param page
         :return: users list of dict
         """
         self.logger.info("Get users list by query %s", query)
         try:
-            return self.__return_user_list(UserModel.get_users_by_query(query))
+            users = UserModel.get_users_by_query(page, query)
+            return self.__return_user_list(users.items), users.total
         except SQLAlchemyError:
             self.logger.error("Get users by name fail. query %s. error %s", query,
                               traceback.format_exc())
@@ -174,9 +177,24 @@ class UserService(Service):
         return [user.as_dict() for user in users]
 
     @staticmethod
-    def get_all_user_address(page: int=1) -> (Dict, int):
+    def get_all_user_address(page: int = 1) -> (Dict, int):
         """
         get all user address for get all address API
         """
         users_addresses = UserModel.get_all_user_address(page)
         return [address.address_type_dict(user) for address, user in users_addresses.items], users_addresses.total
+
+    def change_password_by_id(self, user_id: int, new_pwd: str) -> bool:
+        """
+        change password by userid
+        :param user_id:
+        :param new_pwd:
+        :return:
+        """
+        self.logger.info("Change user password by id %s", user_id)
+        try:
+            return UserModel.change_password(user_id, generate_password_hash(new_pwd))
+        except SQLAlchemyError:
+            self.logger.error("Password change fail. id %s, error %s", user_id,
+                              traceback.format_exc())
+            raise SQLCustomError(description="Change password by ID SQL ERROR")

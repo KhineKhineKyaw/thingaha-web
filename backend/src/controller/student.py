@@ -10,7 +10,7 @@ from common.aws_client import get_client, get_s3_url, get_bucket
 from common.config import S3_BUCKET
 from common.error import SQLCustomError, RequestDataEmpty, ValidateFail
 from controller.api import address_service
-from controller.api import api, post_request_empty, custom_error
+from controller.api import api, post_request_empty, custom_error, sub_admin, full_admin
 from service.student.student_service import StudentService
 
 student_service = StudentService()
@@ -56,6 +56,7 @@ def get_student_by_id(student_id: int):
 
 @api.route("/students", methods=["POST"])
 @jwt_required
+@sub_admin
 @cross_origin()
 def create_student():
     """
@@ -71,7 +72,7 @@ def create_student():
             "district": data.get("district"),
             "township": data.get("township"),
             "street_address": data.get("street_address"),
-            "type": data.get("type")
+            "type": "student"
         })
         student_id = student_service.create_student({
             "name": data.get("name"),
@@ -91,6 +92,7 @@ def create_student():
 
 @api.route("/students/<int:student_id>", methods=["DELETE"])
 @jwt_required
+@full_admin
 @cross_origin()
 def delete_students(student_id: int):
     """
@@ -114,6 +116,7 @@ def delete_students(student_id: int):
 
 @api.route("/students/<int:student_id>", methods=["PUT"])
 @jwt_required
+@sub_admin
 @cross_origin()
 def update_student(student_id: int):
     """
@@ -124,16 +127,21 @@ def update_student(student_id: int):
     data = request.get_json()
     if data is None:
         return post_request_empty()
-    student_update_status = False
+
+    student = student_service.get_student_by_id(student_id)
+    if not student:
+        return custom_error("Invalid student id supplied.")
+
     try:
-        address_id = int(data.get("address_id"))
-        if address_service.update_address_by_id(address_id, {
+        updated = address_service.update_address_by_id(student["address"]["id"], {
             "division": data.get("division"),
             "district": data.get("district"),
             "township": data.get("township"),
             "street_address": data.get("street_address"),
-            "type": data.get("type")
-        }):
+            "type": "student"
+        })
+
+        if updated:
             student_update_status = student_service.update_student_by_id(student_id, {
                 "name": data.get("name"),
                 "deactivated_at": data.get("deactivated_at"),
@@ -142,17 +150,19 @@ def update_student(student_id: int):
                 "mother_name": data.get("mother_name"),
                 "parents_occupation": data.get("parents_occupation"),
                 "photo": data.get("photo"),
-                "address_id": address_id
+                "address_id": student["address"]["id"]
             })
-        current_app.logger.info("Update success for student_id: {}".format(student_id)) \
-            if student_update_status else current_app.logger.error("Update fail for student_id: {}"
-                                                                  .format(student_id))
-        return jsonify({
-            "status": student_update_status
-        }), 200
+            if student_update_status:
+                current_app.logger.info("Update success for student_id: {}".format(student_id))
+                return get_student_by_id(student_id)
+            else:
+                current_app.logger.error("Update fail for student_id: {}".format(student_id))
+                custom_error("Update Fail for student id: {}".format(student_id))
+
     except ValueError as error:
         current_app.logger.error("Value error for address id. error: %s", error)
         return jsonify({"errors": [error.__dict__]}), 400
+
     except (SQLCustomError, ValidateFail, RequestDataEmpty) as error:
         current_app.logger.error("Error for student data update id {} Error: {}"
                                  .format(student_id, error))
@@ -205,6 +215,7 @@ def upload_file(img, file_name: str) -> bool:
 
 @api.route("/student/upload", methods=["POST"])
 @jwt_required
+@sub_admin
 @cross_origin()
 def upload_s3_file():
     """
@@ -230,6 +241,7 @@ def upload_s3_file():
 
 @api.route("/student/upload", methods=["PUT"])
 @jwt_required
+@sub_admin
 @cross_origin()
 def update_file():
     """
@@ -247,6 +259,7 @@ def update_file():
 
 @api.route("/student/delete", methods=["DELETE"])
 @jwt_required
+@sub_admin
 @cross_origin()
 def delete_s3_file():
     """

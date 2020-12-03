@@ -22,11 +22,23 @@ def create_app():
 
 conf = load_config()
 load_logging_conf(conf["common"]["log"]["conf"])
+division_file_path = conf["common"]["mm_division"]["file_path"]
 
 app = create_app()
 jwt = JWTManager(app)
 
 api.jwt = jwt
+api.division_file_path = division_file_path
+
+
+@jwt.user_claims_loader
+def add_claims_to_access_token(user):
+    return user.role
+
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.name
 
 
 if __name__ == "__main__":
