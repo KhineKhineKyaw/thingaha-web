@@ -718,7 +718,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDY5MTA0MTYsIm5iZiI6MTYwNjkxMDQxNiwianRpIjoiMTNjYzhjYmItYzg2NS00NmM3LWIyZmQtYzY5ZTdhOTNlMGQ4IiwiZXhwIjoxNjA2OTk2ODE2LCJpZGVudGl0eSI6Im1vZW1vZUBnbWFpbC5jb20iLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.5H9eCSVbf450OzwKfaVl7jwczJnJokCf1gei3QxbPBg",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDcyNDM0MzAsIm5iZiI6MTYwNzI0MzQzMCwianRpIjoiN2RiYjlkYTAtNWEzYS00ZjljLWFkZjctNzEzNmMwOGExMzgyIiwiZXhwIjoxNjA3MzI5ODMwLCJpZGVudGl0eSI6MiwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIiwidXNlcl9jbGFpbXMiOiJhZG1pbiJ9.lGsUELVcAiQRCiB7zSBEYZbHlWUS8PKnFi-WBC0HD94",
 							"type": "string"
 						}
 					]
@@ -727,7 +727,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"current_password\": \"123\",\n    \"new_password\": \"456\"\n}",
+					"raw": "{\n    \"current_password\": \"123\",\n    \"new_password\": \"456\",\n    \"new_confirm_password\": \"456\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -735,7 +735,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/v1/users/password/2",
+					"raw": "http://localhost:5000/api/v1/users/password/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -745,8 +745,7 @@
 						"api",
 						"v1",
 						"users",
-						"password",
-						"2"
+						"password"
 					]
 				}
 			},

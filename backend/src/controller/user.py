@@ -196,24 +196,25 @@ def change_password():
     change password by userid
     """
     data = request.get_json()
-    password_update_status = False
     if data is None:
         return post_request_empty()
     try:
         current_pwd = data.get("current_password")
         new_pwd = data.get("new_password")
-        print(get_jwt_identity())
-        """
+        new_confirm_pwd = data.get("new_confirm_password")
+        user_id = get_jwt_identity()
         user_data = user_service.get_user_by_id(user_id)
         user = user_service.get_user_by_email(user_data["email"])
-        if user_service.check_password(current_pwd, user):
-            current_app.logger.info("Change password : user_id: %s", user_id)
+        if not user_service.check_password(current_pwd, user):
+            return custom_error("Current password is incorrect.")
+        if new_pwd == new_confirm_pwd:
+            current_app.logger.info("All fields are valid!")
             password_update_status = user_service.change_password_by_id(user_id, new_pwd)
-            current_app.logger.info("The password has been changed successfully!")
-        """
-        return jsonify({
+            return jsonify({
                 "status": password_update_status
             }), 200
+        else:
+            return custom_error("Two fields of new password does not match.")
     except SQLCustomError as error:
         current_app.logger.error(
             "Fail to change user password for user id:%s", user_id)
