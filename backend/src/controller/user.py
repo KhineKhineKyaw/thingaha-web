@@ -24,13 +24,11 @@ def get_all_users():
         page = request.args.get("page", 1, type=int)
         role = request.args.get("role")
         country = request.args.get("country")
-        users, count = user_service.get_all_users(page, role, country)
+        per_page = request.args.get("per_page", 20, type=int)
         current_app.logger.info("Get all users")
         return jsonify({
-            "data": {
-                "count": count,
-                "users": users
-            }}), 200
+            "data": user_service.get_all_users(page, role, country, per_page)
+        }), 200
     except SQLCustomError as error:
         current_app.logger.error("Fail to get all users: %s", error)
         return jsonify({"errors": [error.__dict__]}), 400
@@ -175,20 +173,18 @@ def search_user():
     """
     query = request.args.get("query")
     page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("page", 20, type=int)
     try:
         current_app.logger.info("search user : query: %s", query)
-        users, count = user_service.get_users_by_query(page, query)
         return jsonify({
-            "data": {
-                "count": count,
-                "users": users
-            }}), 200
+            "data": user_service.get_users_by_query(page, query, per_page)
+        }), 200
     except SQLCustomError as error:
         current_app.logger.error("Fail to search user : query: %s", query)
         return jsonify({"errors": [error.__dict__]}), 400
 
 
-@api.route("/users/password/", methods=["PUT"])
+@api.route("/users/password", methods=["PUT"])
 @jwt_required
 @cross_origin()
 def change_password():
@@ -196,13 +192,13 @@ def change_password():
     change password by userid
     """
     data = request.get_json()
-    if data is None:
+    user_id = get_jwt_identity()
+    if data is None or user_id is None:
         return post_request_empty()
     try:
         current_pwd = data.get("current_password")
         new_pwd = data.get("new_password")
         new_confirm_pwd = data.get("new_confirm_password")
-        user_id = get_jwt_identity()
         user_data = user_service.get_user_by_id(user_id)
         user = user_service.get_user_by_email(user_data["email"])
         if not user_service.check_password(current_pwd, user):
