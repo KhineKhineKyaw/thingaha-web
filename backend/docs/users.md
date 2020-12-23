@@ -13,6 +13,15 @@ Input Sample:
 }
 ```
 
+OR
+
+```json
+{
+  "username": "moemoe@gmail.com",
+  "password": "123"
+}
+```
+
 Output Sample:
 
 ```json
@@ -36,7 +45,8 @@ Input Sample:
 
 ```json
 {
-  "name": "MoeMoe",
+  "username": "moemoe",
+  "display_name": "Khine Zar Thwe",
   "email": "moemoe@gmail.com",
   "password": "123",
   "role": "admin",
@@ -47,6 +57,16 @@ Input Sample:
   "street_address": "18 street",
   "township": "La Thar township"
 }
+```
+
+##### username format
+
+```
+username is 8-20 characters long
+no _ or . at the beginning
+no __ or _. or ._ or .. inside
+allowed characters
+no _ or . at the end
 ```
 
 Output Sample:
@@ -69,7 +89,8 @@ Output Sample:
         "email": "moemoe@gmail.com",
         "formatted_address": "အာဇာနည်လမ်း, အမှတ်(၈)ရပ်ကွက်, ညောင်တုန်းမြို့, ayeyarwady",
         "id": 1,
-        "name": "MoeMoe",
+        "username": "MoeMoe",
+        "display_name": "Khine Zar Thwe",
         "role": "admin"
       }
     ]
@@ -114,7 +135,8 @@ Output Sample
         "email": "kzt1@gmail.com",
         "formatted_address": "11 street, MyaeNiGone, yangon, yangon",
         "id": 2,
-        "name": "khinezar1",
+        "username": "khinezar1",
+        "display_name": "Khine Zar Thwe",
         "role": "donator"
       },
       {
@@ -130,7 +152,8 @@ Output Sample
         "email": "kzt2@gmail.com",
         "formatted_address": "12 street, MyaeNiGone, yangon, yangon",
         "id": 3,
-        "name": "khinezar2",
+        "username": "khinezar2",
+        "display_name": "Khine Zar Thwe",
         "role": "donator"
       },
       {
@@ -146,7 +169,8 @@ Output Sample
         "email": "thingyan_test01@gmail.com",
         "formatted_address": "18 street, La Thar township, yangon, yangon",
         "id": 4,
-        "name": "thingyan_test01",
+        "username": "thingyan_test01",
+        "display_name": "Khine Zar Thwe",
         "role": "admin"
       }
     ]
@@ -177,7 +201,8 @@ Output Sample
       "email": "kzt1@gmail.com",
       "formatted_address": "11 street, MyaeNiGone, yangon, yangon",
       "id": 2,
-      "name": "khinezar1",
+      "username": "khinezar1",
+      "display_name": "Khine Zar Thwe",
       "role": "donator"
     }
   }
@@ -194,7 +219,8 @@ Input Sample:
 
 ```json
 {
-  "name": "thingyan_test01",
+  "username": "thingyan_test01",
+  "display_name": "Khine Zar Thwe",
   "email": "thingyan_test01@gmail.com",
   "password": "1234",
   "role": "admin",
@@ -204,7 +230,6 @@ Input Sample:
   "street_address": "19 street",
   "township": "La Thar township",
   "donation_active": true
-
 }
 ```
 
@@ -225,7 +250,8 @@ Output Sample:
       "email": "kzt1@gmail.com",
       "formatted_address": "11 street, MyaeNiGone, yangon, yangon",
       "id": 2,
-      "name": "khinezar1",
+      "username": "khinezar1",
+      "display_name": "Khine Zar Thwe",
       "role": "donator"
     }
   }
@@ -257,18 +283,20 @@ Output Sample:
   }
 }
 ```
+
 ### User update password
- 
-| API              |    Description    | Action |
-| :--------------- | :---------------: | -----: |
+
+| API                    |    Description    | Action |
+| :--------------------- | :---------------: | -----: |
 | /api/v1/users/password | Delete user by id | DELETE |
 
 Input Sample:
-```
+
+```json
 {
-    "current_password": "1234",
-    "new_password": "1234",
-    "new_confirm_password": "1234"
+  "current_password": "1234",
+  "new_password": "1234",
+  "new_confirm_password": "1234"
 }
 ```
 
@@ -279,6 +307,5 @@ Output Sample:
   "status": true
 }
 ```
-
 
 - **_for error detail description please reference error.md_**
